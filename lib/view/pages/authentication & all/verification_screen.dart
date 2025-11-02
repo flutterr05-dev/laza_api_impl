@@ -7,7 +7,13 @@ import 'package:pinput/pinput.dart';
 import '../../../helpers/time_formetter.dart';
 
 class VerificationScreen extends StatefulWidget {
-  const VerificationScreen({super.key});
+  final String userName;
+  final bool isResettingPasswrod;
+  const VerificationScreen({
+    super.key,
+    required this.userName,
+    this.isResettingPasswrod = false,
+  });
 
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
@@ -27,6 +33,21 @@ class _VerificationScreenState extends State<VerificationScreen> {
   void dispose() {
     _authController.dispostTimer();
     super.dispose();
+  }
+
+  void onClick() async {
+    final auth = Get.find<AuthController>();
+
+    final message = await auth.verifyAfterSignup(
+      widget.userName,
+      _pinPutController.text.trim(),
+    );
+
+    if (message == "success") {
+      Get.snackbar("Success", "User verifyed successfully");
+    } else {
+      Get.snackbar("Something went wrong", message);
+    }
   }
 
   @override
@@ -64,24 +85,25 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   children: [
                     Pinput(
                       controller: _pinPutController,
-                      length: 4,
+                      length: 6,
                       defaultPinTheme: PinTheme(
-                        height: 98,
-                        width: 77,
+                        height: 50,
+                        width: 50,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                      validator: (value){
-                        if (value!.length<4){
+                      validator: (value) {
+                        if (value!.length < 6) {
                           return 'enter a valid code';
                         }
                         return null;
-                        },
+                      },
                     ),
                     SizedBox(height: 130),
-                    _authController.enableResend.value ? TextButton(
+                    _authController.enableResend.value
+                        ? TextButton(
                             onPressed: () {
                               _authController.startTimer();
                             },
@@ -113,13 +135,18 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
           ),
           SizedBox(height: 20),
-          CustomButton(
-            title: "Confirm Code",
-            onPressed: () {
-              if (_formKey.currentState!.validate()){
-                Get.toNamed("/newpasswordScreen");
-              }
-            },
+          Obx(
+            () => Get.find<AuthController>().isLoading.value
+                ? Center(child: CircularProgressIndicator())
+                : CustomButton(
+                    title: "Confirm Code",
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // Get.toNamed("/newpasswordScreen");
+                        onClick();
+                      }
+                    },
+                  ),
           ),
         ],
       ),

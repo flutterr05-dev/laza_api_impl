@@ -44,7 +44,7 @@ List<GetPage> pages = [
 
   GetPage(name: Routes.forgotScreen, page: () => ForgotScreen()),
 
-  GetPage(name: Routes.verificationScreen, page: () => VerificationScreen()),
+  // GetPage(name: Routes.verificationScreen, page: () => VerificationScreen()),
 
   GetPage(name: Routes.newpasswordScreen, page: () => NewpasswordScreen()),
 
