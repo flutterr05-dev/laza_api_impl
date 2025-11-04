@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:fahim_try_ecommerce/model/user.dart';
 import 'package:fahim_try_ecommerce/utils/api_client.dart';
+import 'package:fahim_try_ecommerce/view/pages/login/login_screen.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,10 +25,18 @@ class AuthController extends GetxController {
       if (res.statusCode == 200 || res.statusCode == 201) {
         final prefs = await SharedPreferences.getInstance();
 
-        prefs.setString("refresh_token", body['refresh']);
+        if (isRememberMe) {
+          prefs.setString("refresh_token", body['refresh']);
+        }
         prefs.setString("access_token", body['access']);
 
         return "success";
+      } else if (res.statusCode == 403) {
+        final prefs = await SharedPreferences.getInstance();
+        prefs.clear();
+        Get.offAll(() => LoginScreen());
+
+        return "Your authentication has expired";
       } else {
         return body['message'] ?? "Something went wrong";
       }

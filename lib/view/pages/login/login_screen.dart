@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:fahim_try_ecommerce/utils/colors.dart';
 import 'package:fahim_try_ecommerce/view/base/custom_button.dart';
 import 'package:fahim_try_ecommerce/view/base/custom_textfromfield.dart';
+import 'package:fahim_try_ecommerce/view/pages/home/home_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,14 +21,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passCtrl = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final auth = Get.find<AuthController>();
+  bool isObscured = true;
 
   void onSubmit() async {
     if (_formKey.currentState!.validate()) {
       final message = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
 
       if (message == "success") {
-        final snack = Get.snackbar("Login Successful", message);
-        Get.showSnackbar(snack.snackbar);
+        Get.offAll(() => HomeScreen());
       } else {
         final snack = Get.snackbar("Something went wrong", message);
         Get.showSnackbar(snack.snackbar);
@@ -69,17 +72,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 SizedBox(height: 20),
 
-                CustomTextFromField(
-                  controller: _passCtrl,
-                  obscureText: true,
-                  hintText: "Enter Your Password",
-                  lebelText: "Password",
-                  validator: (v) {
-                    if (v == null || v.isEmpty) {
-                      return "Please enter your valid password";
-                    }
-                    return null;
-                  },
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextFromField(
+                        controller: _passCtrl,
+                        obscureText: isObscured,
+                        hintText: "Enter Your Password",
+                        lebelText: "Password",
+                        validator: (v) {
+                          if (v == null || v.isEmpty) {
+                            return "Please enter your valid password";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isObscured = !isObscured;
+                        });
+                      },
+                      icon: Icon(
+                        isObscured
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                      ),
+                    ),
+                  ],
                 ),
                 Align(
                   alignment: AlignmentGeometry.topRight,

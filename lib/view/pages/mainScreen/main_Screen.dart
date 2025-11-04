@@ -1,8 +1,10 @@
 import 'package:fahim_try_ecommerce/view/base/custom_button.dart';
+import 'package:fahim_try_ecommerce/view/pages/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../utils/colors.dart';
 import '../cart/cart_screen.dart';
 import '../home/home_screen.dart';
@@ -146,8 +148,10 @@ _customDrawer() {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           OutlinedButton(
-                          onPressed: () {
-                            Get.toNamed('/loginScreen');
+                          onPressed: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            prefs.clear();
+                            Get.offAll(()=> LoginScreen());
                           },
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Color(0xFFE6D6F2),
