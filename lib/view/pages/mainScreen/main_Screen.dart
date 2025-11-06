@@ -1,5 +1,8 @@
+import 'package:fahim_try_ecommerce/controllers/user_controller.dart';
+import 'package:fahim_try_ecommerce/utils/app_constants.dart';
 import 'package:fahim_try_ecommerce/view/base/custom_button.dart';
 import 'package:fahim_try_ecommerce/view/pages/login/login_screen.dart';
+import 'package:fahim_try_ecommerce/view/pages/profile/user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -22,17 +25,20 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   var selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+
+    Get.find<UserController>().getUserProfile();
+  }
+
   void onItemTapped(int index) {
     setState(() {
       selectedIndex = index;
     });
   }
 
-  List<Widget> pages = <Widget>[
-    HomeScreen(),
-    WishList(),
-    CartScreen()
-  ];
+  List<Widget> pages = <Widget>[HomeScreen(), WishList(), CartScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -77,123 +83,161 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
 _customDrawer() {
   return Drawer(
     width: 330,
     child: ListView(
-      padding: EdgeInsets.symmetric(horizontal: 20,vertical: 30),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 50,),
-           IconButton(
-               onPressed: (){
-                 Get.back(closeOverlays: true);
-               },
-               icon: SvgPicture.asset('assets/icons/menu_arrow.svg')),
-            SizedBox(height: 20,),
-            ListTile(
-              leading: Image.asset('assets/images/person.png',
-              height: 44,width: 44,),
-              title: Text("Zakaria Rabby",
-              style: TextStyle(fontWeight: FontWeight.bold,
-              fontSize: 20),),
+            SizedBox(height: 50),
+            IconButton(
+              onPressed: () {
+                Get.back(closeOverlays: true);
+              },
+              icon: SvgPicture.asset('assets/icons/menu_arrow.svg'),
             ),
-            SizedBox(height: 10,),
+            SizedBox(height: 20),
+            Obx(() {
+              final user = Get.find<UserController>();
+
+              return ListTile(
+                leading: Image.network(
+                  "${AppConstants.baseUrl}${user.userInfo.value?.image}",
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error_outline, color: Colors.red);
+                  },
+                  height: 44,
+                  width: 44,
+                ),
+                title: Text(
+                  user.userInfo.value?.firstName ?? "Loading...",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              );
+            }),
+            SizedBox(height: 10),
             ListTile(
-              onTap: (){},
+              onTap: () {
+                Get.to(() => UserInfo());
+              },
               leading: SvgPicture.asset('assets/icons/Info Circle.svg'),
               title: Text("Account Information"),
             ),
             ListTile(
-              onTap: (){},
-              leading: SvgPicture.asset('assets/icons/cart.svg',color: Colors.black,),
+              onTap: () {},
+              leading: SvgPicture.asset(
+                'assets/icons/cart.svg',
+                color: Colors.black,
+              ),
               title: Text("Order"),
             ),
             ListTile(
-              onTap: (){},
+              onTap: () {},
               leading: SvgPicture.asset('assets/icons/Wallet.svg'),
               title: Text("My Cards"),
             ),
             ListTile(
-              onTap: (){
+              onTap: () {
                 Get.toNamed('/settingsAll');
               },
-              leading: SvgPicture.asset('assets/icons/Setting.svg',),
+              leading: SvgPicture.asset('assets/icons/Setting.svg'),
               title: Text("Settings"),
             ),
-            SizedBox(height: 300,),
+            SizedBox(height: 300),
             ListTile(
-              onTap: (){
+              onTap: () {
                 Get.bottomSheet(
-                    Container(
-                      height: 200,
-                      color: Colors.white,
-                child: Center(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 5,),
-                      SvgPicture.asset('assets/icons/line.svg',height: 4,),
-                      SizedBox(height: 10,),
-                      Text('Logout',style: TextStyle(
-                        color: Colors.red,fontSize: 20,fontWeight: FontWeight.bold
-                      ),),
-                      Divider(),
-                      Text('Are you sure you want to log out?',style: TextStyle(
-                        fontSize: 22,color: Colors.grey[700]
-                      ),),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                  Container(
+                    height: 200,
+                    color: Colors.white,
+                    child: Center(
+                      child: Column(
                         children: [
-                          OutlinedButton(
-                          onPressed: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            prefs.clear();
-                            Get.offAll(()=> LoginScreen());
-                          },
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Color(0xFFE6D6F2),
-                              side:  BorderSide(color: Color(0xFF8A2BE2)),
-                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                            ),
-                            child: Text(
-                              'Yes, Logout',
-                              style: TextStyle(
-                                color: Color(0xFF8A2BE2),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          SizedBox(height: 5),
+                          SvgPicture.asset('assets/icons/line.svg', height: 4),
+                          SizedBox(height: 10),
+                          Text(
+                            'Logout',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Get.back();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF8A2BE2),
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),),),
-                          ],
+                          Divider(),
+                          Text(
+                            'Are you sure you want to log out?',
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () async {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  prefs.clear();
+                                  Get.offAll(() => LoginScreen());
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Color(0xFFE6D6F2),
+                                  side: BorderSide(color: Color(0xFF8A2BE2)),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 14,
+                                  ),
+                                ),
+                                child: Text(
+                                  'Yes, Logout',
+                                  style: TextStyle(
+                                    color: Color(0xFF8A2BE2),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF8A2BE2),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 14,
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                ));
+                );
               },
               leading: SvgPicture.asset('assets/icons/Logout.svg'),
-              title: Text("Logout",style: TextStyle(
-                color: Colors.red,fontSize: 25
-              ),),
+              title: Text(
+                "Logout",
+                style: TextStyle(color: Colors.red, fontSize: 25),
+              ),
             ),
           ],
         ),

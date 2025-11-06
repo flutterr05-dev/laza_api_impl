@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fahim_try_ecommerce/routs/routes.dart';
 import 'package:fahim_try_ecommerce/utils/colors.dart';
 import 'package:fahim_try_ecommerce/view/base/custom_button.dart';
 import 'package:fahim_try_ecommerce/view/base/custom_textfromfield.dart';
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final message = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
 
       if (message == "success") {
-        Get.offAll(() => HomeScreen());
+        Get.offAllNamed(Routes.mainScreen);
       } else {
         final snack = Get.snackbar("Something went wrong", message);
         Get.showSnackbar(snack.snackbar);
